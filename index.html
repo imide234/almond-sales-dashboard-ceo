@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Almond Growth — CEO Dashboard</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: Calibri, Candara, sans-serif; background: #0A1830; margin: 0; color: #EDEFF5; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding-bottom: 40px; }
+  header { padding: 32px 32px 0; border-bottom: 1px solid #1E3155; }
+  .headtop { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; }
+  .eyebrow { font-size: 11px; letter-spacing: 2px; color: #C6A550; font-weight: 700; text-transform: uppercase; }
+  h1 { font-family: Georgia, serif; color: #fff; font-size: 30px; margin: 4px 0 6px; }
+  .flow { color: #9FB0CC; font-size: 13px; margin: 0; }
+  .flow .arrow { color: #C6A550; margin: 0 2px; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1px; margin-top: 28px; background: #17264A; border-radius: 12px 12px 0 0; overflow: hidden; }
+  .kpi { padding: 14px 14px 16px; background: #12213c; }
+  .kpi.accent { background: rgba(198,165,80,0.14); }
+  .kpi .label { font-size: 10.5px; color: #9FB0CC; text-transform: uppercase; letter-spacing: 0.6px; }
+  .kpi .value { font-size: 19px; font-weight: 700; color: #fff; margin-top: 4px; }
+  .content { padding: 0 32px; }
+  .card { background: #12213c; border-radius: 12px; padding: 24px; margin-top: 20px; border: 1px solid #233a5e; }
+  .card h2 { font-family: Georgia, serif; color: #fff; font-size: 18px; margin: 0 0 4px; }
+  .card .sub { color: #7C8CAD; font-size: 12px; margin: 0 0 16px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  label.field { display: block; }
+  .field-label { font-size: 12px; color: #9FB0CC; margin-bottom: 4px; font-weight: 600; }
+  input, select, textarea { width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #2C3E5E; font-size: 13.5px; font-family: inherit; background: #0F1D33; color: #EDEFF5; }
+  input::placeholder, textarea::placeholder { color: #5A6C8C; }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+  .btn-primary { margin-top: 16px; background: #7CB342; color: #0A1830; border: none; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 700; cursor: pointer; }
+  select.small { padding: 6px 10px; border-radius: 6px; border: 1px solid #2C3E5E; font-size: 12px; background: #0F1D33; color: #EDEFF5; }
+  .stage-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .stage-label { width: 100px; font-size: 12px; font-weight: 600; flex-shrink: 0; color: #DDE3EE; }
+  .bar-track { flex: 1; background: #1B2C4D; border-radius: 6px; height: 22px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 6px; }
+  .stage-count { width: 36px; font-size: 12px; color: #9FB0CC; text-align: right; flex-shrink: 0; }
+  .stage-value { width: 100px; font-size: 12px; color: #7C8CAD; text-align: right; flex-shrink: 0; }
+  .lead-row { border: 1px solid #233a5e; border-radius: 8px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .lead-name { font-weight: 600; font-size: 14px; color: #fff; }
+  .lead-meta { font-size: 12px; color: #9FB0CC; margin-top: 2px; }
+  .lead-notes { font-size: 12px; color: #7C8CAD; margin-top: 4px; }
+  .empty { color: #7C8CAD; font-size: 14px; }
+  .error-banner { background: #3a1f1f; border: 1px solid #6b3a3a; color: #f0b4b4; border-radius: 8px; padding: 10px 14px; margin: 20px 0 0; font-size: 13px; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; }
+  .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; flex-wrap: wrap; gap: 10px; }
+  .lb-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; border-radius: 8px; background: #17264A; border: 1px solid #233a5e; margin-bottom: 8px; }
+  .lb-row.top { background: rgba(198,165,80,0.15); border-color: #C6A550; }
+  .lb-name { font-weight: 600; font-size: 13.5px; color: #fff; }
+  .lb-meta { font-size: 11.5px; color: #9FB0CC; }
+  .lb-won { font-size: 14px; font-weight: 700; color: #8FCB4F; text-align: right; }
+  .lb-comm { font-size: 11px; color: #7C8CAD; text-align: right; }
+  .ind-row-label { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 4px; }
+  .ind-track { background: #1B2C4D; border-radius: 6px; height: 9px; overflow: hidden; }
+  .ind-fill { height: 100%; border-radius: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; color: #9FB0CC; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; padding: 8px 10px; border-bottom: 1px solid #233a5e; }
+  td { padding: 10px; border-bottom: 1px solid #1c2e4f; color: #DDE3EE; }
+  .status-badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; text-transform: uppercase; }
+  .status-badge.pending { background: rgba(224,168,60,0.2); color: #E0A83C; }
+  .status-badge.paid { background: rgba(124,179,66,0.2); color: #8FCB4F; }
+  .status-badge.cancelled { background: rgba(217,83,79,0.2); color: #E88; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="headtop">
+      <div>
+        <div class="eyebrow">Sales Professional Program</div>
+        <h1>Almond Growth</h1>
+        <p class="flow">Lead <span class="arrow">&#8594;</span> Conversation <span class="arrow">&#8594;</span> Meeting <span class="arrow">&#8594;</span> Proposal <span class="arrow">&#8594;</span> Client <span class="arrow">&#8594;</span> Revenue <span class="arrow">&#8594;</span> Retention</p>
+      </div>
+      <div class="eyebrow" style="text-align:right;color:#C6A550">CEO Dashboard</div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+  </header>
+
+  <div class="content">
+    <div id="errorBanner"></div>
+
+    <section class="card">
+      <h2>Log a business</h2>
+      <form id="leadForm">
+        <div class="form-grid">
+          <label class="field"><div class="field-label">Intern name</div><input id="f_intern" required placeholder="e.g. Tolu Adeyemi"></label>
+          <label class="field"><div class="field-label">Business name</div><input id="f_business" required placeholder="e.g. Coral Fashion House"></label>
+          <label class="field"><div class="field-label">Industry</div>
+            <select id="f_industry">
+              <option>Small Business</option><option>Startup</option><option>Retail</option><option>Telecom</option><option>Fashion</option><option>Other</option>
+            </select>
+          </label>
+          <label class="field"><div class="field-label">Contact person</div><input id="f_contact" placeholder="Owner / decision-maker"></label>
+          <label class="field"><div class="field-label">Phone</div><input id="f_phone" placeholder="+234..."></label>
+          <label class="field"><div class="field-label">Source</div>
+            <select id="f_source">
+              <option>Referral</option><option>Cold Call</option><option>WhatsApp</option><option>Instagram</option><option>Facebook</option><option>Walk-in</option><option>Other</option>
+            </select>
+          </label>
+          <label class="field"><div class="field-label">Stage</div>
+            <select id="f_stage">
+              <option>New Lead</option><option>Contacted</option><option>Responded</option><option>Qualified</option><option>Meeting</option><option>Proposal</option><option>Negotiation</option><option>Won</option><option>Lost</option>
+            </select>
+          </label>
+          <label class="field"><div class="field-label">Deal value (if known)</div><input id="f_value" type="number" min="0" placeholder="0"></label>
+          <label class="field"><div class="field-label">Next follow-up</div><input id="f_followup" type="date"></label>
+        </div>
+        <div style="margin-top:14px">
+          <label class="field"><div class="field-label">Notes</div><textarea id="f_notes" rows="2" placeholder="Context, next steps..."></textarea></label>
+        </div>
+        <button type="submit" class="btn-primary">Add to pipeline</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Pipeline by stage</h2>
+      <div id="pipelineChart"></div>
+    </section>
+
+    <div class="grid2">
+      <section class="card">
+        <h2>Leads / won by industry</h2>
+        <div id="industryChart"></div>
+      </section>
+      <section class="card">
+        <h2>Partner leaderboard</h2>
+        <div id="leaderboard"></div>
+      </section>
+    </div>
+
+    <section class="card">
+      <div class="toolbar">
+        <h2 style="margin:0">Commission ledger</h2>
+      </div>
+      <p class="sub">Created automatically the moment a lead is marked Won. Move each one through Pending → Paid once you've actually paid the intern.</p>
+      <div id="commissionTable"></div>
+    </section>
+
+    <section class="card">
+      <div class="toolbar">
+        <h2 style="margin:0">All leads</h2>
+        <div class="filters">
+          <select class="small" id="filterIntern"><option value="all">All interns</option></select>
+          <select class="small" id="filterIndustry">
+            <option value="all">All industries</option>
+            <option>Small Business</option><option>Startup</option><option>Retail</option><option>Telecom</option><option>Fashion</option><option>Other</option>
+          </select>
+          <select class="small" id="filterStage">
+            <option value="all">All stages</option>
+            <option>New Lead</option><option>Contacted</option><option>Responded</option><option>Qualified</option><option>Meeting</option><option>Proposal</option><option>Negotiation</option><option>Won</option><option>Lost</option>
+          </select>
+        </div>
+      </div>
+      <div id="leadsList"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+const CONFIG = {
+API_URL: 'https://script.google.com/macros/s/AKfycbyJhbYrSrwA_RAiAt1twuXUvO1zkQef1f5oqWU1YpCAi5jnawvKQL4a2LrEZLuPx6ZKTw/exec'
+};
+
+const STAGES = ['New Lead','Contacted','Responded','Qualified','Meeting','Proposal','Negotiation','Won','Lost'];
+const CONVERSATION_STAGES = ['Responded','Qualified','Meeting','Proposal','Negotiation','Won'];
+const INDUSTRIES = ['Small Business','Startup','Retail','Telecom','Fashion','Other'];
+const STAGE_COLOR = {
+  'New Lead':'#5A6C8C','Contacted':'#5A6C8C','Responded':'#4A90D9','Qualified':'#4A90D9',
+  'Meeting':'#E0A83C','Proposal':'#E0A83C','Negotiation':'#E0A83C','Won':'#7CB342','Lost':'#D9534F'
+};
+const INDUSTRY_COLOR = {'Small Business':'#4A90D9','Startup':'#C6A550','Retail':'#9FB0CC','Telecom':'#7CB342','Fashion':'#B26AA0','Other':'#7C8CAD'};
+
+let leads = [];
+let commissions = [];
+
+function currency(n){ return '\u20a6' + Math.round(n||0).toLocaleString(); }
+
+async function loadData(){
+  if (CONFIG.API_URL.includes('PASTE_YOUR')) {
+    showError('Backend not connected yet. Paste your Apps Script URL into CONFIG.API_URL in this file.');
+    return;
+  }
+  try {
+    const res = await fetch(CONFIG.API_URL);
+    const data = await res.json();
+    leads = (data.leads || []).map(r => ({
+      id: r['Lead ID'], businessName: r['Business Name'], industry: r['Industry'],
+      internName: r['Owner'], contactPerson: r['Contact Person'], phone: r['Phone'],
+      source: r['Source'], dateAdded: r['Date Added'], stage: r['Stage'],
+      dealValue: Number(r['Deal Value']) || 0, nextFollowUp: r['Next Follow-up'], notes: r['Notes']
+    }));
+    commissions = (data.commissions || []).map(r => ({
+      id: r['Commission ID'], dealId: r['Deal ID'], businessName: r['Business Name'],
+      internName: r['Owner'], dealValue: Number(r['Deal Value']) || 0,
+      rate: Number(r['Commission %']) || 0.1, amount: Number(r['Commission Amount']) || 0,
+      status: r['Status'] || 'Pending', paidDate: r['Paid Date']
+    }));
+    render();
+    clearError();
+  } catch (e) {
+    showError("Couldn't load data from Google Sheets. Check the API URL and that the Apps Script is deployed with 'Anyone' access.");
+  }
+}
+
+async function addLead(entry){
+  if (CONFIG.API_URL.includes('PASTE_YOUR')) { showError('Backend not connected yet.'); return; }
+  try {
+    await fetch(CONFIG.API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'add', ...entry }) });
+    await loadData();
+  } catch(e) { showError("Couldn't save to Google Sheets."); }
+}
+
+async function updateStage(id, stage){
+  try {
+    await fetch(CONFIG.API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'updateStage', id, stage }) });
+    await loadData();
+  } catch(e) { showError("Couldn't update stage."); }
+}
+
+async function updateCommissionStatus(id, status){
+  try {
+    await fetch(CONFIG.API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'updateCommissionStatus', id, status }) });
+    await loadData();
+  } catch(e) { showError("Couldn't update commission status."); }
+}
+
+function showError(msg){ document.getElementById('errorBanner').innerHTML = '<div class="error-banner">'+msg+'</div>'; }
+function clearError(){ document.getElementById('errorBanner').innerHTML = ''; }
+
+document.getElementById('leadForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const intern = document.getElementById('f_intern').value.trim();
+  const business = document.getElementById('f_business').value.trim();
+  if (!intern || !business) return;
+  addLead({
+    businessName: business, industry: document.getElementById('f_industry').value, owner: intern,
+    contactPerson: document.getElementById('f_contact').value.trim(), phone: document.getElementById('f_phone').value.trim(),
+    source: document.getElementById('f_source').value, stage: document.getElementById('f_stage').value,
+    dealValue: Number(document.getElementById('f_value').value) || 0,
+    nextFollowUp: document.getElementById('f_followup').value, notes: document.getElementById('f_notes').value.trim()
+  });
+  ['f_business','f_contact','f_phone','f_value','f_followup','f_notes'].forEach(id => document.getElementById(id).value = '');
+});
+
+['filterIntern','filterIndustry','filterStage'].forEach(id => document.getElementById(id).addEventListener('change', renderLeadsList));
+
+function render(){ renderKpis(); renderPipeline(); renderIndustry(); renderLeaderboard(); renderCommissionTable(); renderInternFilter(); renderLeadsList(); }
+
+function renderKpis(){
+  const totalLeads = leads.length;
+  const conversations = leads.filter(l => CONVERSATION_STAGES.includes(l.stage)).length;
+  const meetings = leads.filter(l => l.stage === 'Meeting').length;
+  const proposals = leads.filter(l => l.stage === 'Proposal').length;
+  const won = leads.filter(l => l.stage === 'Won');
+  const revenueWon = won.reduce((s,l) => s + l.dealValue, 0);
+  const commissionOwed = commissions.filter(c => c.status === 'Pending').reduce((s,c) => s + c.amount, 0);
+  const items = [
+    ['Total leads', totalLeads, false], ['Conversations', conversations, false],
+    ['Meetings', meetings, false], ['Proposals', proposals, false],
+    ['Clients won', won.length, true], ['Revenue won', currency(revenueWon), true],
+    ['Commission owed', currency(commissionOwed), true]
+  ];
+  document.getElementById('kpis').innerHTML = items.map(([label,value,accent]) =>
+    '<div class="kpi'+(accent?' accent':'')+'"><div class="label">'+label+'</div><div class="value">'+value+'</div></div>'
+  ).join('');
+}
+
+function renderPipeline(){
+  const map = {}; STAGES.forEach(s => map[s] = {count:0, value:0});
+  leads.forEach(l => { if(map[l.stage]){ map[l.stage].count++; map[l.stage].value += l.dealValue; } });
+  const maxCount = Math.max(1, ...STAGES.map(s => map[s].count));
+  document.getElementById('pipelineChart').innerHTML = STAGES.map(s => {
+    const stat = map[s]; const pct = (stat.count / maxCount) * 100;
+    return '<div class="stage-row"><div class="stage-label">'+s+'</div>'+
+      '<div class="bar-track"><div class="bar-fill" style="width:'+pct+'%;background:'+STAGE_COLOR[s]+'"></div></div>'+
+      '<div class="stage-count">'+stat.count+'</div><div class="stage-value">'+currency(stat.value)+'</div></div>';
+  }).join('');
+}
+
+function renderIndustry(){
+  const map = {}; INDUSTRIES.forEach(i => map[i] = {leads:0, won:0});
+  leads.forEach(l => { if(map[l.industry]){ map[l.industry].leads++; if(l.stage==='Won') map[l.industry].won++; } });
+  const maxLeads = Math.max(1, ...INDUSTRIES.map(i => map[i].leads));
+  document.getElementById('industryChart').innerHTML = INDUSTRIES.map(i => {
+    const stat = map[i]; const pct = stat.leads > 0 ? Math.round((stat.won/stat.leads)*100) : 0;
+    const barPct = (stat.leads / maxLeads) * 100;
+    return '<div style="margin-bottom:14px"><div class="ind-row-label"><span style="color:#fff;font-weight:600">'+i+'</span>'+
+      '<span style="color:#9FB0CC">'+stat.won+'/'+stat.leads+' won ('+pct+'%)</span></div>'+
+      '<div class="ind-track"><div class="ind-fill" style="width:'+barPct+'%;background:'+INDUSTRY_COLOR[i]+'"></div></div></div>';
+  }).join('');
+}
+
+function renderLeaderboard(){
+  const map = {};
+  leads.forEach(l => {
+    if(!map[l.internName]) map[l.internName] = {name:l.internName, leads:0, meetings:0, proposals:0, won:0};
+    const r = map[l.internName];
+    r.leads++;
+    if(l.stage==='Meeting') r.meetings++;
+    if(l.stage==='Proposal') r.proposals++;
+    if(l.stage==='Won') r.won++;
+  });
+  commissions.forEach(c => { if(map[c.internName]) map[c.internName].commission = (map[c.internName].commission || 0) + c.amount; });
+  const list = Object.values(map).sort((a,b) => b.won - a.won);
+  const el = document.getElementById('leaderboard');
+  if(list.length===0){ el.innerHTML = '<p class="empty">No leads logged yet.</p>'; return; }
+  el.innerHTML = list.map((p,i) =>
+    '<div class="lb-row'+(i===0 && p.won>0 ? ' top':'')+'"><div><div class="lb-name">'+p.name+'</div>'+
+    '<div class="lb-meta">'+p.leads+' leads &middot; '+p.meetings+' meetings &middot; '+p.proposals+' proposals</div></div>'+
+    '<div><div class="lb-won">'+p.won+' won</div><div class="lb-comm">'+currency(p.commission||0)+' commission</div></div></div>'
+  ).join('');
+}
+
+function renderCommissionTable(){
+  const el = document.getElementById('commissionTable');
+  if(commissions.length===0){ el.innerHTML = '<p class="empty">No commissions yet — they appear automatically once a lead is marked Won.</p>'; return; }
+  const rows = commissions.map(c => {
+    const statusClass = c.status.toLowerCase();
+    return '<tr><td>'+c.businessName+'</td><td>'+c.internName+'</td><td>'+currency(c.dealValue)+'</td>'+
+      '<td>'+Math.round(c.rate*100)+'%</td><td>'+currency(c.amount)+'</td>'+
+      '<td><select class="small" onchange="updateCommissionStatus(\''+c.id+'\', this.value)">'+
+      ['Pending','Paid','Cancelled'].map(s => '<option'+(s===c.status?' selected':'')+'>'+s+'</option>').join('')+
+      '</select></td><td>'+(c.paidDate || '\u2014')+'</td></tr>';
+  }).join('');
+  el.innerHTML = '<table><thead><tr><th>Business</th><th>Intern</th><th>Deal value</th><th>Rate</th><th>Commission</th><th>Status</th><th>Paid date</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+function renderInternFilter(){
+  const sel = document.getElementById('filterIntern'); const current = sel.value;
+  const interns = Array.from(new Set(leads.map(l => l.internName))).sort();
+  sel.innerHTML = '<option value="all">All interns</option>' + interns.map(n => '<option>'+n+'</option>').join('');
+  sel.value = interns.includes(current) ? current : 'all';
+}
+
+function renderLeadsList(){
+  const fi = document.getElementById('filterIntern').value;
+  const fc = document.getElementById('filterIndustry').value;
+  const fs = document.getElementById('filterStage').value;
+  const filtered = leads.filter(l => (fi==='all' || l.internName===fi) && (fc==='all' || l.industry===fc) && (fs==='all' || l.stage===fs));
+  const el = document.getElementById('leadsList');
+  if(filtered.length===0){ el.innerHTML = '<p class="empty">No leads match these filters yet.</p>'; return; }
+  el.innerHTML = filtered.map(l => {
+    const stageOptions = STAGES.map(s => '<option'+(s===l.stage?' selected':'')+'>'+s+'</option>').join('');
+    return '<div class="lead-row"><div style="flex:1;min-width:220px">'+
+      '<div class="lead-name">'+l.businessName+'</div>'+
+      '<div class="lead-meta">'+l.industry+' &middot; '+l.internName+' &middot; '+l.source+' &middot; '+(l.dateAdded||'')+
+      (l.dealValue>0 ? ' &middot; '+currency(l.dealValue) : '')+'</div>'+
+      (l.notes ? '<div class="lead-notes">'+l.notes+'</div>' : '')+
+      '</div><select class="small" onchange="updateStage(\''+l.id+'\', this.value)">'+stageOptions+'</select></div>';
+  }).join('');
+}
+
+loadData();
+</script>
+</body>
+</html>
